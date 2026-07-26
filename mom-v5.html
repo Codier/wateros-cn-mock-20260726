@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fffaf4" />
+  <title>小水管家 · 妈妈版 V5</title>
+  <style>
+    :root {
+      --ink:#2d2a27;
+      --muted:#746f69;
+      --paper:#fffdf9;
+      --cream:#fff8ee;
+      --line:#e8e0d7;
+      --orange:#e9703d;
+      --orange-dark:#c95627;
+      --orange-soft:#fff0e5;
+      --green:#2d876e;
+      --green-soft:#eaf6f1;
+      --blue:#476eaa;
+      --blue-soft:#eef4ff;
+      --purple:#765e9c;
+      --purple-soft:#f3effa;
+      --yellow:#fff4c9;
+      --shadow:0 10px 35px rgba(71,56,43,.10);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:#ebe7e2;color:var(--ink)}
+    body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Microsoft YaHei",Arial,sans-serif;-webkit-font-smoothing:antialiased;font-size:17px;line-height:1.45}
+    button,input{font:inherit}
+    button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+    .phone{
+      width:100%;max-width:430px;min-height:100vh;margin:0 auto;background:var(--paper);
+      position:relative;overflow:hidden;box-shadow:0 0 50px rgba(40,32,25,.16);
+      display:flex;flex-direction:column;
+    }
+    .safe-top{height:max(12px,env(safe-area-inset-top));background:var(--cream)}
+    .header{
+      height:66px;padding:8px 18px;background:rgba(255,250,244,.96);backdrop-filter:blur(14px);
+      display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;
+    }
+    .butler-face{width:42px;height:42px;border-radius:15px;background:#f8d9c6;color:#b74e24;display:grid;place-items:center;font-weight:900;font-size:20px}
+    .header-title{min-width:0;flex:1}
+    .header-title b{display:block;font-size:17px;line-height:1.15}
+    .header-title span{font-size:12px;color:var(--green);display:flex;align-items:center;gap:5px;margin-top:3px}
+    .online-dot{width:7px;height:7px;background:#38a27f;border-radius:50%}
+    .demo-tag{font-size:10px;color:#866b5a;background:#fff0df;border:1px solid #ebd6c5;padding:4px 7px;border-radius:999px;white-space:nowrap}
+
+    .content{flex:1;min-height:0;padding-bottom:84px}
+    .screen{display:none;animation:fade .18s ease}
+    .screen.active{display:block}
+    @keyframes fade{from{opacity:.4;transform:translateY(3px)}to{opacity:1;transform:none}}
+    .home-pad,.page-pad{padding:18px}
+
+    .hello h1{font-size:26px;line-height:1.25;margin:0 0 6px;letter-spacing:-.4px}
+    .hello p{margin:0;color:var(--muted);font-size:15px}
+    .today-card{margin-top:16px;background:linear-gradient(145deg,#fff4e8,#fffaf4);border:1px solid #efd8c6;border-radius:20px;padding:17px;box-shadow:0 3px 0 rgba(121,83,53,.02)}
+    .today-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+    .today-head b{font-size:17px}
+    .today-head span{font-size:12px;color:var(--muted)}
+    .today-item{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid rgba(208,178,153,.34)}
+    .today-item:first-of-type{border-top:0}
+    .today-icon{width:36px;height:36px;border-radius:12px;background:white;display:grid;place-items:center;font-size:18px}
+    .today-copy b{font-size:15px;display:block}
+    .today-copy span{font-size:12px;color:var(--muted);display:block;margin-top:2px}
+    .mini-status{font-size:11px;font-weight:800;padding:5px 8px;border-radius:999px;background:var(--yellow);color:#765f13;white-space:nowrap}
+    .mini-status.green{background:var(--green-soft);color:var(--green)}
+
+    .voice-zone{text-align:center;padding:22px 8px 18px}
+    .voice-orb{width:92px;height:92px;border:0;border-radius:50%;background:var(--orange);color:white;margin:auto;display:grid;place-items:center;box-shadow:0 9px 0 #c9582b,0 16px 26px rgba(197,88,43,.22);transition:.12s}
+    .voice-orb:active{transform:translateY(5px);box-shadow:0 4px 0 #c9582b,0 10px 20px rgba(197,88,43,.18)}
+    .mic{width:29px;height:38px;border:4px solid white;border-radius:17px;position:relative}
+    .mic:before{content:"";position:absolute;width:42px;height:25px;border:4px solid white;border-top:0;border-radius:0 0 22px 22px;left:50%;top:20px;transform:translateX(-50%)}
+    .mic:after{content:"";position:absolute;width:4px;height:12px;background:white;left:50%;top:41px;transform:translateX(-50%);border-radius:3px}
+    .voice-zone b{display:block;margin-top:17px;font-size:17px}
+    .voice-zone span{font-size:13px;color:var(--muted)}
+
+    .quick-head{display:flex;justify-content:space-between;align-items:center;margin:5px 2px 10px}
+    .quick-head b{font-size:17px}
+    .quick-head span{font-size:12px;color:var(--muted)}
+    .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+    .quick-btn{border:1px solid var(--line);background:white;border-radius:17px;padding:15px 13px;text-align:left;min-height:102px;box-shadow:0 3px 12px rgba(71,56,43,.04);transition:.12s}
+    .quick-btn:active{transform:scale(.98);background:#fffaf5}
+    .quick-emoji{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-size:21px;margin-bottom:9px}
+    .quick-btn b{display:block;font-size:16px}
+    .quick-btn span{font-size:11px;color:var(--muted);display:block;margin-top:2px;line-height:1.35}
+    .money .quick-emoji{background:var(--green-soft)}
+    .shop .quick-emoji{background:var(--orange-soft)}
+    .travel .quick-emoji{background:var(--blue-soft)}
+    .chat .quick-emoji{background:var(--purple-soft)}
+    .vault .quick-emoji{background:#f1f1f1}
+    .calendar .quick-emoji{background:#fff3d6}
+
+    .bottom-nav{height:74px;padding-bottom:max(7px,env(safe-area-inset-bottom));background:rgba(255,253,249,.97);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);position:sticky;bottom:0;z-index:25}
+    .bottom-btn{border:0;background:transparent;color:#8b8580;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:700}
+    .bottom-btn i{font-style:normal;font-size:22px;line-height:1}
+    .bottom-btn.active{color:var(--orange-dark)}
+
+    .page-head{display:flex;align-items:center;gap:9px;margin-bottom:17px}
+    .back{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:white;font-size:22px;display:grid;place-items:center;color:var(--ink)}
+    .page-title h1{font-size:23px;margin:0;line-height:1.2}
+    .page-title p{font-size:12px;color:var(--muted);margin:4px 0 0}
+    .hero{border-radius:20px;padding:18px;border:1px solid var(--line);margin-bottom:14px}
+    .hero.green{background:var(--green-soft);border-color:#cce7db}
+    .hero.orange{background:var(--orange-soft);border-color:#efd3bf}
+    .hero.blue{background:var(--blue-soft);border-color:#d4e1f5}
+    .hero.purple{background:var(--purple-soft);border-color:#dfd6ec}
+    .hero h2{font-size:21px;margin:0 0 5px}
+    .hero p{font-size:14px;color:#5f5a55;margin:0}
+    .hero .big-ok{font-size:40px;margin-bottom:6px}
+    .scope-card{background:white;border:1px solid var(--line);border-radius:17px;padding:14px 15px;margin:0 0 14px;box-shadow:0 3px 12px rgba(71,56,43,.04)}
+    .scope-card b{display:block;font-size:15px;margin-bottom:4px}
+    .scope-card p{font-size:13px;color:var(--muted);margin:0;line-height:1.5}
+    .decision-card{background:linear-gradient(145deg,#fff3e8,#fffaf4);border:1px solid #efd3bf;border-radius:20px;padding:17px;margin-bottom:14px}
+    .decision-card h2{font-size:21px;margin:0 0 5px}
+    .decision-card>p{font-size:14px;color:var(--muted);margin:0}
+    .decision-detail{background:white;border-radius:14px;padding:12px 13px;margin-top:13px;text-align:center;font-size:14px;line-height:1.55}
+    .decision-actions{display:grid;grid-template-columns:1.35fr 1fr;gap:9px;margin-top:12px}
+    .decision-actions .large-btn{margin:0;font-size:16px;padding:13px 10px}
+    .decision-done{text-align:center;padding:8px 0}
+    .decision-done strong{display:block;font-size:21px;margin-top:6px}
+    .rule-note{display:flex;gap:9px;align-items:flex-start;background:white;border:1px solid var(--line);border-radius:14px;padding:12px;margin:13px 0}
+    .rule-note i{font-style:normal}
+    .rule-note b{display:block;font-size:14px}
+    .rule-note span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+    .large-btn{width:100%;border:0;border-radius:15px;padding:15px 16px;background:var(--orange);color:white;font-weight:800;font-size:17px;margin-top:10px;box-shadow:0 5px 0 #c9582b}
+    .large-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #c9582b}
+    .large-btn.secondary{background:white;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+    .large-btn.green{background:var(--green);box-shadow:0 5px 0 #226a56}
+    .list-card{background:white;border:1px solid var(--line);border-radius:17px;overflow:hidden;margin-bottom:13px}
+    .list-title{padding:13px 15px;border-bottom:1px solid var(--line);font-size:14px;font-weight:800;background:#fffcf8}
+    .list-row{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:13px 14px;border-bottom:1px solid #f0ebe5}
+    .list-row:last-child{border-bottom:0}
+    .list-icon{width:42px;height:42px;border-radius:13px;background:var(--cream);display:grid;place-items:center;font-size:21px}
+    .list-copy b{display:block;font-size:15px}
+    .list-copy span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+    .row-action{border:1px solid var(--line);background:white;border-radius:11px;padding:8px 10px;font-size:13px;font-weight:750;color:var(--orange-dark)}
+
+    .shop-search{background:white;border:2px solid #efc3a9;border-radius:17px;padding:13px 14px;display:flex;align-items:center;gap:9px;margin-bottom:14px}
+    .shop-search input{border:0;outline:0;min-width:0;flex:1;font-size:16px;background:transparent}
+    .shop-search button{border:0;background:var(--orange-soft);color:var(--orange-dark);width:38px;height:38px;border-radius:12px;font-size:18px}
+    .cart-bar{position:sticky;bottom:77px;background:#2e2a27;color:white;border-radius:17px;margin:15px 0 3px;padding:13px 15px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)}
+    .cart-bar div{flex:1}
+    .cart-bar b{display:block}
+    .cart-bar span{font-size:12px;color:#d9d3cf}
+    .cart-bar button{border:0;background:#ffd0b8;color:#7d3215;border-radius:12px;padding:10px 13px;font-weight:850}
+
+    .phrase-card{background:white;border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:12px}
+    .phrase-label{font-size:12px;color:var(--muted);margin-bottom:7px}
+    .thai{font-size:22px;font-weight:850;color:var(--blue);line-height:1.35}
+    .pronounce{font-size:13px;color:var(--muted);margin-top:5px}
+    .phrase-actions{display:flex;gap:8px;margin-top:12px}
+    .small-btn{border:1px solid var(--line);background:white;border-radius:11px;padding:9px 11px;font-size:13px;font-weight:750}
+    .small-btn.blue{background:var(--blue);color:white;border-color:var(--blue)}
+
+    .chat-wrap{padding:12px 15px 130px}
+    .message{display:flex;gap:9px;margin:13px 0;align-items:flex-end}
+    .message.me{justify-content:flex-end}
+    .chat-face{width:32px;height:32px;border-radius:11px;background:#f8d9c6;display:grid;place-items:center;font-size:14px;font-weight:900;flex:none}
+    .bubble{max-width:79%;padding:11px 13px;border-radius:17px 17px 17px 5px;background:#f1ede8;font-size:15px}
+    .message.me .bubble{background:var(--orange);color:white;border-radius:17px 17px 5px 17px}
+    .bubble small{display:block;margin-top:5px;opacity:.7;font-size:10px}
+    .chat-compose{position:absolute;left:0;right:0;bottom:74px;background:rgba(255,253,249,.97);border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:8px;z-index:10}
+    .chat-compose input{min-width:0;flex:1;border:1px solid var(--line);border-radius:15px;padding:12px 13px;background:white;outline:0}
+    .voice-small{width:48px;border:0;border-radius:15px;background:var(--orange);color:white;font-size:22px}
+
+    .vault-warning{background:#fff8dc;border:1px solid #ecd782;border-radius:15px;padding:12px 13px;margin-bottom:14px;font-size:13px;color:#66561e}
+    .vault-row{display:grid;grid-template-columns:45px 1fr auto;gap:10px;align-items:center;padding:14px;border-bottom:1px solid #f0ebe5}
+    .vault-row:last-child{border-bottom:0}
+    .vault-value{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1px;color:var(--muted);font-size:13px;margin-top:3px}
+    .face-btn{border:0;background:#2f2f30;color:white;border-radius:12px;padding:9px 10px;font-size:12px;font-weight:750}
+
+    .timeline{position:relative;padding-left:26px}
+    .timeline:before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:#eadfd5}
+    .event{position:relative;background:white;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:13px}
+    .event:before{content:"";position:absolute;left:-23px;top:20px;width:11px;height:11px;border-radius:50%;background:var(--orange);border:3px solid var(--paper)}
+    .event-time{font-size:12px;color:var(--orange-dark);font-weight:850}
+    .event h3{font-size:16px;margin:3px 0}
+    .event p{font-size:12px;color:var(--muted);margin:0}
+    .family-card{background:var(--purple-soft);border:1px solid #ddd2ec;border-radius:18px;padding:15px;margin-bottom:15px}
+    .family-card h2{font-size:18px;margin:0 0 5px}
+    .family-card p{font-size:13px;color:var(--muted);margin:0 0 12px}
+    .family-status{background:white;border-radius:13px;padding:11px;display:flex;align-items:center;gap:9px}
+    .family-status b{font-size:14px;display:block}
+    .family-status span{font-size:11px;color:var(--muted);display:block}
+
+    .sheet-bg{position:fixed;inset:0;background:rgba(28,22,18,.45);display:none;align-items:flex-end;justify-content:center;z-index:60;padding:0}
+    .sheet-bg.open{display:flex}
+    .sheet{width:100%;max-width:430px;background:var(--paper);border-radius:24px 24px 0 0;padding:12px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -18px 45px rgba(52,42,34,.18);animation:up .2s ease}
+    @keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+    .handle{width:44px;height:5px;background:#d8d1cb;border-radius:5px;margin:0 auto 15px}
+    .sheet h2{font-size:21px;margin:0 0 6px}
+    .sheet p{font-size:14px;color:var(--muted);margin:0 0 14px}
+    .order-summary{border:1px solid var(--line);border-radius:15px;padding:13px;margin-bottom:12px}
+    .summary-row{display:flex;justify-content:space-between;margin:7px 0;font-size:14px}
+    .summary-row.total{border-top:1px solid var(--line);padding-top:9px;font-weight:850;font-size:16px}
+    .face-id{width:72px;height:72px;margin:10px auto 13px;border:4px dashed #1d1d1f;border-radius:19px;display:grid;place-items:center;font-size:30px}
+    .sensitive-demo{background:#f4f4f4;border-radius:14px;padding:13px;text-align:center;font-family:ui-monospace,SFMono-Regular,monospace;letter-spacing:2px;margin:11px 0;font-size:17px}
+    .toast{position:fixed;left:50%;bottom:95px;z-index:90;transform:translate(-50%,15px);width:max-content;max-width:calc(100% - 36px);background:#2e2a27;color:white;border-radius:13px;padding:11px 14px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;text-align:center}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+
+    @media(min-width:431px){.phone{min-height:880px;margin:24px auto;border-radius:28px}.safe-top{height:10px}.bottom-nav{border-radius:0 0 28px 28px}.sheet-bg{align-items:center}.sheet{border-radius:24px;max-height:85vh}}
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="safe-top"></div>
+    <header class="header">
+      <div class="butler-face">水</div>
+      <div class="header-title"><b>小水管家</b><span><i class="online-dot"></i> 我一直在，有事叫我</span></div>
+      <div class="demo-tag">妈妈版 V5</div>
+    </header>
+
+    <main class="content">
+      <section class="screen active" id="screen-home">
+        <div class="home-pad">
+          <div class="hello"><h1>早上好，今天我陪您。</h1><p>不用记很多事，我会替您盯着。</p></div>
+
+          <div class="today-card">
+            <div class="today-head"><b>今天要紧的 3 件事</b><span>7月26日 · 周日</span></div>
+            <div class="today-item" onclick="showScreen('calendar')"><div class="today-icon">🍚</div><div class="today-copy"><b>晚饭要不要等孩子们</b><span>已经替您问了，等他们回复</span></div><div class="mini-status">等回复</div></div>
+            <div class="today-item" id="todayWater" onclick="showScreen('shop')"><div class="today-icon">💧</div><div class="today-copy"><b>矿泉水可能快喝完了</b><span>两箱 ¥57.80，等您决定买不买</span></div><div class="mini-status">待确认</div></div>
+            <div class="today-item" onclick="showScreen('travel')"><div class="today-icon">🇹🇭</div><div class="today-copy"><b>泰国出行还有 12 天</b><span>地陪、翻译和地址都准备好了</span></div><div class="mini-status green">放心</div></div>
+          </div>
+
+          <div class="voice-zone"><button class="voice-orb" onclick="showScreen('chat')" aria-label="按住说话"><span class="mic"></span></button><b>按一下，直接跟我说</b><span>不会打字也没关系</span></div>
+
+          <div class="quick-head"><b>我能帮您</b><span>点一下就行</span></div>
+          <div class="quick-grid">
+            <button class="quick-btn money" onclick="showScreen('money')"><div class="quick-emoji">💰</div><b>投资情况与操作</b><span>看风险、听解释；需要买卖时一步步确认</span></button>
+            <button class="quick-btn shop" onclick="showScreen('shop')"><div class="quick-emoji">🛍️</div><b>购物与下单</b><span>找商品、比价格；付款前显示数量和总价</span></button>
+            <button class="quick-btn travel" onclick="showScreen('travel')"><div class="quick-emoji">🧳</div><b>翻译与出行</b><span>泰语、地址、叫车、地陪和紧急求助</span></button>
+            <button class="quick-btn chat" onclick="showScreen('chat')"><div class="quick-emoji">💬</div><b>生活管家</b><span>聊生活琐事，也可以替您联系家人</span></button>
+            <button class="quick-btn vault" onclick="showScreen('vault')"><div class="quick-emoji">🔐</div><b>重要资料</b><span>找护照、密码提示、家庭地址和联系人</span></button>
+            <button class="quick-btn calendar" onclick="showScreen('calendar')"><div class="quick-emoji">📅</div><b>日程与家人</b><span>看提醒，也能问谁回来吃饭</span></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-money">
+        <div class="page-pad">
+          <div class="page-head"><button class="back" onclick="showScreen('home')">‹</button><div class="page-title"><h1>投资情况与操作</h1><p>只说重要的，不用看复杂数字</p></div></div>
+          <div class="scope-card"><b>这里能帮您做什么</b><p>查看账户有没有风险、把市场变化讲明白；真的需要买卖时，我会一步一步带您确认。不会自动替您交易。</p></div>
+          <div class="hero green"><div class="big-ok">✓</div><h2>今天不用您操作</h2><p>账户没有触发家人帮您设定的风险提醒。市场有波动，但目前不需要买卖。</p></div>
+          <div class="rule-note"><i>🛡️</i><div><b>不会偷偷替您买卖</b><span>任何交易都会先告诉您，并请您用 Face ID 确认。</span></div></div>
+          <div class="list-card"><div class="list-title">今天最值得知道的</div><div class="list-row"><div class="list-icon">📉</div><div class="list-copy"><b>市场今天有些下跌</b><span>您的长期计划没有改变，不用慌</span></div><button class="row-action" onclick="speakMock('市场今天有一些波动，但没有触发您的风险规则。')">听解释</button></div><div class="list-row"><div class="list-icon">💵</div><div class="list-copy"><b>本月花费在预算内</b><span>离家人设定的提醒线还有距离</span></div><button class="row-action" onclick="showToast('已为您打开简单说明（mock）')">看一眼</button></div></div>
+          <button class="large-btn green" onclick="askButler('我想问问今天的投资情况')">我还有问题，问管家</button>
+          <button class="large-btn secondary" onclick="showToast('已准备给儿子的消息，发送前会让您确认')">这件事问问儿子</button>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-shop">
+        <div class="page-pad">
+          <div class="page-head"><button class="back" onclick="showScreen('home')">‹</button><div class="page-title"><h1>购物与下单</h1><p>找商品、比价格、安排送货和付款确认</p></div></div>
+          <div class="scope-card"><b>这里能帮您做什么</b><p>可以找常买的东西、比较价格和送货时间。付款前会把商品、数量、送到哪里、什么时候到和总价一次讲清楚。</p></div>
+          <div class="decision-card" id="waterDecision"><h2>矿泉水可能快喝完了</h2><p>按您平时的用量，我先替您看了一下。</p><div class="decision-detail"><b>常买的矿泉水 · 2 箱</b><br>明天下午送到家里 · 合计 ¥57.80</div><div class="decision-actions"><button class="large-btn" onclick="oneTapOrderV5()">好，买吧 · ¥57.80</button><button class="large-btn secondary" onclick="skipWaterV5()">不用，家里还有</button></div></div>
+          <div class="shop-search"><input id="shopInput" placeholder="比如：矿泉水、纸巾、拖鞋"/><button onclick="voiceShop()">🎙</button></div>
+          <div class="hero orange"><h2>还想买别的东西？</h2><p>可以直接说商品名称。我会优先找您买过、评价好、送货快的，不让广告排在前面。</p></div>
+          <div class="list-card"><div class="list-row"><div class="list-icon">🧻</div><div class="list-copy"><b>比如：抽纸</b><span>我会先问数量，再把总价一次给您看</span></div><button class="row-action" onclick="voiceShop()">告诉我</button></div><div class="list-row"><div class="list-icon">🥿</div><div class="list-copy"><b>比如：防滑拖鞋</b><span>我会先问尺码和颜色，再帮您挑</span></div><button class="row-action" onclick="askButler('帮我买一双防滑拖鞋')">帮我选</button></div></div>
+          <div class="rule-note"><i>✅</i><div><b>常买的小额商品，只确认一次</b><span>品牌、数量、地址或价格异常时，我才会多问一句；否则点“买吧”后直接调用 Face ID。</span></div></div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-travel">
+        <div class="page-pad">
+          <div class="page-head"><button class="back" onclick="showScreen('home')">‹</button><div class="page-title"><h1>翻译与出行</h1><p>泰语、地址、叫车、地陪和求助</p></div></div>
+          <div class="scope-card"><b>这里能帮您做什么</b><p>把中文翻成泰语、给司机看地址、帮您叫车、联系中文地陪；遇到困难时还能联系家人或紧急服务。</p></div>
+          <div class="hero blue"><h2>不用记泰语，给对方看就行</h2><p>遇到问题先按下面的大按钮。需要真人时，我会帮您联系地陪或家人。</p></div>
+          <div class="list-card"><div class="list-title">现在最常用</div><div class="list-row"><div class="list-icon">🚕</div><div class="list-copy"><b>给司机看酒店地址</b><span>泰文地址 + 地图，一键放大</span></div><button class="row-action" onclick="showPhrase('请带我去这个酒店','กรุณาพาฉันไปที่โรงแรมนี้','卡鲁纳 帕 灿 拜 提 荣蓝 尼')">打开</button></div><div class="list-row"><div class="list-icon">💊</div><div class="list-copy"><b>我要去药店</b><span>告诉对方您哪里不舒服</span></div><button class="row-action" onclick="showPhrase('请问最近的药店在哪里？','ร้านขายยาที่ใกล้ที่สุดอยู่ที่ไหน','然 卡呀 提 盖 提素 有 提奈')">打开</button></div><div class="list-row"><div class="list-icon">🆘</div><div class="list-copy"><b>我需要帮助</b><span>联系地陪、家人或紧急服务</span></div><button class="row-action" onclick="openHelpSheet()">求助</button></div></div>
+          <div class="phrase-card"><div class="phrase-label">今天可以先学一句</div><div class="thai">ขอบคุณค่ะ</div><div class="pronounce">谢谢 · “扩坤 卡”</div><div class="phrase-actions"><button class="small-btn blue" onclick="speakMock('扩坤卡')">🔊 放给对方听</button><button class="small-btn" onclick="showToast('已把泰语放大显示')">放大给人看</button></div></div>
+          <button class="large-btn" onclick="askButler('我现在在泰国，需要你陪我出门')">打开实时地陪模式</button>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-chat">
+        <div class="chat-wrap" id="chatWrap">
+          <div class="page-head"><div class="page-title"><h1>生活管家</h1><p>生活琐事、问题解答和联系家人</p></div></div>
+          <div class="scope-card"><b>生活管家能做什么</b><p>可以聊生活琐事、问事情怎么做，也可以替您联系家人。需要购物、出行或安排日程时，我会带您去对应的页面。</p></div>
+          <div class="message"><div class="chat-face">水</div><div class="bubble">早上好。今天晚饭的事我已经替您问孩子们了，有回复我马上告诉您。<small>小水管家 · 8:20</small></div></div>
+          <div class="message me"><div class="bubble">帮我看看泰国要带什么。<small>您 · 8:22</small></div></div>
+          <div class="message"><div class="chat-face">水</div><div class="bubble">好。护照、常用药和充电器我都放进清单了。护照信息在加密资料柜里，不会发到聊天中。<small>小水管家 · 8:22</small></div></div>
+          <div class="message"><div class="chat-face">水</div><div class="bubble">您也可以直接说：“帮我买东西”“今天有什么安排”或者“我想聊聊天”。<small>小水管家 · 现在</small></div></div>
+        </div>
+        <div class="chat-compose"><input id="chatInput" placeholder="打字，或者按右边说话"/><button class="voice-small" onclick="mockVoice()">🎙</button></div>
+      </section>
+
+      <section class="screen" id="screen-vault">
+        <div class="page-pad">
+          <div class="page-head"><button class="back" onclick="showScreen('home')">‹</button><div class="page-title"><h1>重要资料</h1><p>护照、密码提示、家庭地址和联系人</p></div></div>
+          <div class="scope-card"><b>这里能帮您做什么</b><p>替您找到护照信息、常用密码的安全提示、家庭地址和紧急联系人。真实内容只在 Face ID 通过后短暂显示，不进入聊天。</p></div>
+          <div class="vault-warning">演示页面没有保存任何真实号码或密码。正式产品也不会把这些内容放进聊天记录。</div>
+          <div class="list-card"><div class="vault-row"><div class="list-icon">🛂</div><div class="list-copy"><b>护照信息</b><div class="vault-value">E••••••• · 尾号 4821</div></div><button class="face-btn" onclick="openVault('护照信息','E••••••• · 尾号 4821')">Face ID 查看</button></div><div class="vault-row"><div class="list-icon">🔑</div><div class="list-copy"><b>常用密码提示</b><div class="vault-value">••••••••</div></div><button class="face-btn" onclick="openVault('密码提示','只展示安全提示，不保存手机解锁密码')">Face ID 查看</button></div><div class="vault-row"><div class="list-icon">🏠</div><div class="list-copy"><b>家庭地址与联系人</b><div class="vault-value">已保存 3 项</div></div><button class="face-btn" onclick="openVault('家庭资料','地址和联系人仍保持遮罩')">Face ID 查看</button></div></div>
+          <div class="rule-note"><i>🔒</i><div><b>管家只知道“去哪里找”</b><span>真正的号码放在加密资料柜中。需要时由您用 Face ID 打开，不进入 Agent 记忆。</span></div></div>
+          <button class="large-btn secondary" onclick="showToast('将由家人协助添加，保存前需要双方确认')">请家人帮我添加资料</button>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-calendar">
+        <div class="page-pad">
+          <div class="page-head"><button class="back" onclick="showScreen('home')">‹</button><div class="page-title"><h1>日程与家人</h1><p>提醒、行程和需要向家人确认的事情</p></div></div>
+          <div class="scope-card"><b>这里能帮您做什么</b><p>查看今天的安排、接收出发和取件提醒，也能替您询问家人谁回来吃饭，并在收到回复后更新晚饭时间和人数。</p></div>
+          <div class="family-card"><h2>今晚要不要等孩子们吃饭？</h2><p>我已经替您问了儿子和儿媳，不需要您再发一次。</p><div class="family-status" id="familyStatus"><div class="list-icon">💬</div><div style="flex:1"><b>等待回复</b><span>消息已送达 · 18分钟前</span></div><div class="mini-status">等一下</div></div><button class="large-btn secondary" onclick="simulateFamilyReply()">演示：收到家人回复</button></div>
+          <div class="timeline"><div class="event"><div class="event-time">上午 10:30</div><h3>取快递</h3><p>快递柜取件码已放进提醒，打开时用 Face ID 看。</p></div><div class="event"><div class="event-time">下午 3:00</div><h3>和朋友喝茶</h3><p>出发前 30 分钟提醒您，并帮您叫车。</p></div><div class="event"><div class="event-time">晚上 6:30</div><h3>晚饭</h3><p>等孩子们回复后，我会自动更新人数和时间。</p></div></div>
+          <button class="large-btn" onclick="askButler('帮我安排一件新事情')">帮我安排新事情</button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav"><button class="bottom-btn active" data-bottom="home" onclick="showScreen('home')"><i>⌂</i>首页</button><button class="bottom-btn" data-bottom="chat" onclick="showScreen('chat')"><i>◉</i>跟管家说</button><button class="bottom-btn" data-bottom="calendar" onclick="showScreen('calendar')"><i>▣</i>今天安排</button></nav>
+  </div>
+
+  <div class="sheet-bg" id="sheetBg" onclick="backdropClose(event)"><div class="sheet" id="sheet"><div class="handle"></div><div id="sheetBody"></div></div></div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const screenTitles={home:'小水管家',money:'投资情况与操作',shop:'购物与下单',travel:'翻译与出行',chat:'生活管家',vault:'重要资料',calendar:'日程与家人'};
+    let cart={name:'',price:''};
+
+    function showScreen(name){
+      document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+      const target=document.getElementById('screen-'+name); if(target) target.classList.add('active');
+      document.querySelectorAll('.bottom-btn').forEach(x=>x.classList.toggle('active',x.dataset.bottom===name || (name==='money'||name==='shop'||name==='travel'||name==='vault')&&x.dataset.bottom==='home'));
+      window.scrollTo({top:0,behavior:'smooth'});
+      if(name==='chat') setTimeout(()=>{const c=document.getElementById('chatWrap');c.scrollTop=c.scrollHeight},100);
+    }
+    function showToast(text){const t=document.getElementById('toast');t.textContent=text;t.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove('show'),2600)}
+    function openSheet(html){document.getElementById('sheetBody').innerHTML=html;document.getElementById('sheetBg').classList.add('open')}
+    function closeSheet(){document.getElementById('sheetBg').classList.remove('open')}
+    function backdropClose(e){if(e.target.id==='sheetBg')closeSheet()}
+
+    function askButler(text){showScreen('chat');setTimeout(()=>addChat(text,true),120);setTimeout(()=>addChat('好，我来帮您。正式产品里我会继续追问最少的必要信息，然后再行动。',false),550)}
+    function addChat(text,mine){const wrap=document.getElementById('chatWrap');const div=document.createElement('div');div.className='message'+(mine?' me':'');div.innerHTML=mine?'<div class="bubble"></div>':'<div class="chat-face">水</div><div class="bubble"></div>';div.querySelector('.bubble').textContent=text;wrap.appendChild(div);window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})}
+    document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'){const v=e.target.value.trim();if(!v)return;addChat(v,true);e.target.value='';setTimeout(()=>addChat('我听见了。我会先确认清楚，再帮您办理。',false),500)}})
+    function mockVoice(){showToast('正在听您说话……（演示）');setTimeout(()=>{addChat('帮我问问他们晚上回不回来吃饭。',true);setTimeout(()=>addChat('已经问过了，正在等回复。我不会重复打扰他们。',false),450)},800)}
+    function speakMock(text){showToast('🔊 '+text)}
+
+    function updateWaterToday(title,detail,status){const item=document.getElementById('todayWater');if(!item)return;item.querySelector('.today-copy b').textContent=title;item.querySelector('.today-copy span').textContent=detail;const badge=item.querySelector('.mini-status');badge.textContent=status;badge.classList.add('green')}
+    function oneTapOrderV5(){const card=document.getElementById('waterDecision');if(!card)return;card.innerHTML='<div class="decision-done"><div class="face-id">⌁</div><strong>正在用 Face ID 确认</strong><p>不再打开新的商品确认页面。</p></div>';setTimeout(()=>{card.innerHTML='<div class="decision-done"><div class="big-ok">✓</div><strong>买好了</strong><p>两箱矿泉水，¥57.80。明天下午送到家里。</p></div>';updateWaterToday('矿泉水明天下午送到','两箱已确认 · 合计 ¥57.80','已安排');showToast('✓ 已确认购买')},900)}
+    function skipWaterV5(){const card=document.getElementById('waterDecision');if(!card)return;card.innerHTML='<div class="decision-done"><div class="big-ok">✓</div><strong>好的，这次不买</strong><p>我过一段时间再问您，不会重复打扰。</p></div>';updateWaterToday('矿泉水这次不用买','家里还有，过一段时间再问','已处理')}
+    function addCart(name,price){cart={name,price};const nameEl=document.getElementById('cartName'),priceEl=document.getElementById('cartPrice'),bar=document.getElementById('cartBar');if(!nameEl||!priceEl||!bar)return;nameEl.textContent=name;priceEl.textContent='合计 ¥'+price+' · 下单前还要确认';bar.style.display='flex';showToast('已加入，尚未付款')}
+    function voiceShop(){showToast('请直接说您想买什么……（演示）');document.getElementById('shopInput').value='帮我买两箱常喝的矿泉水'}
+    function openOrderSheet(){if(!cart.name)return;openSheet('<h2>请您最后确认</h2><p>我不会在您确认前付款。</p><div class="order-summary"><div class="summary-row"><span>商品</span><b>'+cart.name+'</b></div><div class="summary-row"><span>送到</span><b>家里 · 明天下午</b></div><div class="summary-row"><span>付款方式</span><b>家庭日常卡 · 尾号 3028</b></div><div class="summary-row total"><span>合计</span><b>¥'+cart.price+'</b></div></div><button class="large-btn" onclick="confirmOrder()">用 Face ID 确认付款</button><button class="large-btn secondary" onclick="closeSheet()">先不买</button>')}
+    function confirmOrder(){document.getElementById('sheetBody').innerHTML='<div class="face-id">⌁</div><h2 style="text-align:center">正在确认是您本人</h2><p style="text-align:center">正式产品会调用 iPhone 的 Face ID，不会知道您的解锁密码。</p>';setTimeout(()=>{closeSheet();showToast('✓ 演示完成：订单已确认')},1500)}
+
+    function showPhrase(chinese,thai,pronounce){openSheet('<h2>'+chinese+'</h2><p>把下面这句话给对方看，或者点播放。</p><div class="sensitive-demo" style="font-family:inherit;letter-spacing:0;font-size:24px;color:var(--blue)">'+thai+'</div><p style="text-align:center">读音：'+pronounce+'</p><button class="large-btn" onclick="speakMock(\''+chinese+'\');closeSheet()">🔊 放给对方听</button><button class="large-btn secondary" onclick="closeSheet()">关掉</button>')}
+    function openHelpSheet(){openSheet('<h2>您想联系谁？</h2><p>紧急情况请直接联系当地紧急服务。普通事情可以先找地陪或家人。</p><button class="large-btn" onclick="showToast(\'正在呼叫泰国地陪（演示）\');closeSheet()">联系泰国地陪</button><button class="large-btn secondary" onclick="showToast(\'正在联系家人（演示）\');closeSheet()">联系家人</button><button class="large-btn secondary" onclick="closeSheet()">我没事，返回</button>')}
+
+    function openVault(title,value){openSheet('<div class="face-id">⌁</div><h2 style="text-align:center">用 Face ID 查看</h2><p style="text-align:center">验证后只在您眼前短暂显示，不写进聊天或 Agent 记忆。</p><button class="large-btn" onclick="revealVault(\''+title+'\',\''+value+'\')">模拟 Face ID 成功</button><button class="large-btn secondary" onclick="closeSheet()">取消</button>')}
+    function revealVault(title,value){document.getElementById('sheetBody').innerHTML='<h2>'+title+'</h2><p>这是安全演示，仍然只显示遮罩内容。</p><div class="sensitive-demo">'+value+'</div><button class="large-btn" onclick="closeSheet()">看完了，关掉</button>'}
+
+    function simulateFamilyReply(){const s=document.getElementById('familyStatus');s.innerHTML='<div class="list-icon">✅</div><div style="flex:1"><b>他们今晚回来吃饭</b><span>儿媳回复：大约 6 点半到</span></div><div class="mini-status green">已确认</div>';showToast('已更新晚饭人数，并安排 6 点开始准备')}
+  </script>
+</body>
+</html>
