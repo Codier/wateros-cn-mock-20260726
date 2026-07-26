@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WaterOS 中文版 · Low-fi Mock</title>
+  <style>
+    :root {
+      --ink: #17201d;
+      --muted: #6d7773;
+      --line: #d8dedb;
+      --soft: #f4f7f5;
+      --paper: #fbfcfb;
+      --white: #ffffff;
+      --water: #0c7665;
+      --water-soft: #e6f4f0;
+      --yellow: #fff5d6;
+      --yellow-line: #dfc365;
+      --red-soft: #fff0ed;
+      --red: #a94335;
+      --blue-soft: #edf3ff;
+      --blue: #355f9d;
+      --shadow: 0 10px 30px rgba(31, 53, 47, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--soft);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .app { min-height: 100vh; display: grid; grid-template-columns: 270px minmax(620px, 1fr); }
+    .sidebar {
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+      background: #18231f; color: #f2f7f4; padding: 18px 14px;
+      border-right: 1px solid #0f1714;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 2px 8px 17px; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 12px 12px 14px 14px;
+      display: grid; place-items: center; background: #c8f1e6; color: #0b6d5d; font-weight: 900;
+      transform: rotate(2deg);
+    }
+    .brand h1 { font-size: 16px; margin: 0; letter-spacing: .2px; }
+    .brand small { color: #9db0a9; display: block; font-size: 11px; margin-top: 1px; }
+    .workspace-switch {
+      border: 1px solid #35463f; background: #22302b; border-radius: 10px; padding: 10px 11px;
+      margin: 0 4px 16px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .workspace-switch b { font-size: 13px; }
+    .workspace-switch span { color: #a9bab4; font-size: 12px; }
+    .nav-label { color: #72877f; padding: 10px 9px 5px; font-size: 11px; font-weight: 700; letter-spacing: .8px; }
+    .nav-item {
+      border: 0; width: 100%; color: #c9d5d0; background: transparent; text-align: left;
+      padding: 9px 10px; border-radius: 8px; display: flex; align-items: center; gap: 9px; margin: 2px 0;
+    }
+    .nav-item:hover { background: #263630; color: white; }
+    .nav-item.active { background: #344b43; color: white; }
+    .nav-item .icon { width: 19px; text-align: center; opacity: .9; }
+    .nav-item .count {
+      margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px;
+      display: grid; place-items: center; background: #d6f2e9; color: #0a5d51; font-size: 11px; font-weight: 800;
+    }
+    .nav-item .count.gray { background: #43564f; color: #d3ded9; }
+    .agent-dot { width: 8px; height: 8px; border-radius: 50%; background: #5ee0b9; box-shadow: 0 0 0 3px rgba(94,224,185,.12); }
+    .agent-dot.idle { background: #70827b; box-shadow: none; }
+    .add-agent {
+      margin: 12px 4px 0; width: calc(100% - 8px); padding: 10px; border-radius: 9px;
+      border: 1px dashed #50635c; background: transparent; color: #a9bbb4;
+    }
+    .add-agent:hover { border-color: #9bc9bb; color: #e3f3ed; }
+
+    .main { min-width: 0; }
+    .topbar {
+      height: 64px; position: sticky; top: 0; z-index: 15;
+      background: rgba(251,252,251,.94); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; padding: 0 24px;
+    }
+    .topbar-title { font-weight: 750; font-size: 15px; }
+    .topbar-spacer { flex: 1; }
+    .status-pill, .model-pill {
+      border: 1px solid var(--line); background: white; border-radius: 999px; padding: 7px 10px;
+      color: var(--muted); display: flex; align-items: center; gap: 7px; font-size: 12px;
+    }
+    .status-pill i { width: 7px; height: 7px; background: #37b68e; border-radius: 50%; }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; background: #dce5e1; display: grid; place-items: center; font-weight: 800; }
+
+    .view { display: none; padding: 26px; max-width: 1440px; margin: 0 auto; }
+    .view.active { display: block; }
+    .overview-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 22px; }
+    .page-title { margin: 0 0 4px; font-size: 25px; line-height: 1.25; letter-spacing: -.4px; }
+    .page-subtitle { color: var(--muted); margin: 0 0 20px; }
+
+    .return-card {
+      border: 1px solid #9bcdbf; background: linear-gradient(135deg, #eefaf6, #f9fcfb);
+      border-radius: 14px; padding: 18px; margin-bottom: 22px; display: flex; gap: 16px; align-items: center;
+    }
+    .return-icon { width: 44px; height: 44px; border-radius: 50%; background: #caeee3; display: grid; place-items: center; font-size: 20px; }
+    .return-card h2 { margin: 0 0 3px; font-size: 17px; }
+    .return-card p { margin: 0; color: #53635e; }
+    .return-stats { margin-left: auto; display: flex; gap: 17px; text-align: center; }
+    .return-stat strong { display: block; font-size: 19px; }
+    .return-stat span { color: var(--muted); font-size: 11px; }
+
+    .section { margin-bottom: 24px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .section-head h2 { font-size: 15px; margin: 0; }
+    .section-head .hint { color: var(--muted); font-size: 12px; }
+    .card { background: var(--white); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 1px 0 rgba(20,40,32,.02); }
+    .decision-card { padding: 16px; margin-bottom: 10px; border-left: 4px solid var(--yellow-line); }
+    .decision-card.resolved { opacity: .62; border-left-color: #86a69d; }
+    .eyebrow { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .2px; margin-bottom: 5px; }
+    .decision-title { margin: 0 0 6px; font-size: 15px; }
+    .decision-desc { margin: 0; color: #58635f; font-size: 13px; }
+    .decision-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; color: var(--muted); font-size: 11px; }
+    .actions { display: flex; gap: 8px; margin-top: 13px; }
+    .btn {
+      border-radius: 8px; border: 1px solid var(--line); background: white; color: var(--ink);
+      padding: 8px 12px; font-weight: 650; font-size: 12px;
+    }
+    .btn:hover { border-color: #9eaaa5; background: #fafbfa; }
+    .btn.primary { background: var(--water); color: white; border-color: var(--water); }
+    .btn.primary:hover { background: #095f52; }
+    .btn.ghost { background: transparent; }
+
+    .work-row {
+      padding: 13px 14px; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 12px;
+      align-items: center; border-bottom: 1px solid #edf0ee; cursor: pointer;
+    }
+    .work-row:last-child { border-bottom: 0; }
+    .work-row:hover { background: #fafcfb; }
+    .work-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--soft); display: grid; place-items: center; font-size: 15px; }
+    .work-title { font-weight: 700; margin-bottom: 2px; }
+    .work-meta { color: var(--muted); font-size: 11px; }
+    .progress-wrap { text-align: right; min-width: 100px; }
+    .progress-label { color: var(--muted); font-size: 11px; margin-bottom: 5px; }
+    .progress { height: 6px; width: 100px; border-radius: 5px; background: #e8eeeb; overflow: hidden; }
+    .progress > i { display: block; height: 100%; background: #56a992; border-radius: 5px; }
+    .status-tag { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 700; }
+    .status-tag.working { background: var(--water-soft); color: #146755; }
+    .status-tag.done { background: #edf0ee; color: #51605b; }
+    .status-tag.blocked { background: var(--red-soft); color: var(--red); }
+
+    .side-card { background: white; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
+    .side-card h3 { font-size: 13px; margin: 0; padding: 13px 14px; border-bottom: 1px solid #edf0ee; }
+    .side-body { padding: 13px 14px; }
+    .pulse-row { display: flex; align-items: center; gap: 9px; margin: 10px 0; }
+    .pulse-row:first-child { margin-top: 0; }
+    .pulse-row:last-child { margin-bottom: 0; }
+    .pulse-avatar { width: 29px; height: 29px; border-radius: 8px; background: var(--soft); display: grid; place-items: center; font-size: 12px; font-weight: 800; }
+    .pulse-info { min-width: 0; flex: 1; }
+    .pulse-info b { display: block; font-size: 12px; }
+    .pulse-info span { display: block; color: var(--muted); font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cost-big { font-size: 25px; font-weight: 800; margin: 2px 0 3px; }
+    .cost-note { color: var(--muted); font-size: 11px; }
+    .memory-item { padding: 8px 0; border-bottom: 1px solid #edf0ee; }
+    .memory-item:last-child { border-bottom: 0; }
+    .memory-item b { font-size: 12px; display: block; }
+    .memory-item span { font-size: 10px; color: var(--muted); }
+
+    .work-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; }
+    .work-header { padding-bottom: 17px; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
+    .back-link { border: 0; background: none; color: var(--water); padding: 0; margin-bottom: 10px; font-weight: 700; }
+    .work-header h1 { margin: 0 0 7px; font-size: 23px; }
+    .work-header p { color: var(--muted); margin: 0; }
+    .status-card { border: 1px solid #9bcdbf; background: #f2faf7; border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+    .status-card-head { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .status-card-head b { font-size: 13px; }
+    .status-card-head span { color: var(--muted); font-size: 10px; }
+    .status-lines { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .status-line { background: rgba(255,255,255,.7); border: 1px solid #d9ebe5; border-radius: 8px; padding: 9px; }
+    .status-line span { display: block; color: var(--muted); font-size: 10px; }
+    .status-line b { font-size: 12px; }
+    .message { display: grid; grid-template-columns: 35px 1fr; gap: 10px; padding: 12px 0; border-bottom: 1px solid #edf0ee; }
+    .message-avatar { width: 31px; height: 31px; border-radius: 9px; background: #e8eeeb; display: grid; place-items: center; font-weight: 800; font-size: 11px; }
+    .message-head { display: flex; align-items: baseline; gap: 7px; }
+    .message-head b { font-size: 12px; }
+    .message-head span { color: var(--muted); font-size: 10px; }
+    .message p { margin: 4px 0 0; font-size: 13px; color: #3f4a46; }
+    .artifact { margin-top: 8px; padding: 9px 10px; border: 1px solid var(--line); background: var(--paper); border-radius: 8px; font-size: 11px; color: var(--blue); }
+    .composer { display: flex; gap: 8px; margin-top: 14px; }
+    .composer input { flex: 1; border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; background: white; }
+    .composer input:focus { outline: 2px solid #bce1d6; border-color: #7ab5a4; }
+    .fact-row { padding: 10px 0; border-bottom: 1px solid #edf0ee; }
+    .fact-row:last-child { border-bottom: 0; }
+    .fact-row span { display: block; font-size: 10px; color: var(--muted); }
+    .fact-row b { font-size: 12px; }
+
+    .team-grid { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 13px; }
+    .agent-card { padding: 16px; }
+    .agent-card-top { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; }
+    .agent-card-avatar { width: 42px; height: 42px; border-radius: 12px; background: var(--water-soft); display: grid; place-items: center; font-size: 16px; font-weight: 900; }
+    .agent-card h3 { margin: 0; font-size: 14px; }
+    .agent-card .role { color: var(--muted); font-size: 11px; }
+    .agent-card p { margin: 8px 0 12px; color: #53605b; font-size: 12px; min-height: 36px; }
+    .agent-kv { display: flex; justify-content: space-between; padding: 7px 0; border-top: 1px solid #edf0ee; font-size: 11px; }
+    .agent-kv span { color: var(--muted); }
+
+    .provider-list { max-width: 850px; }
+    .provider-row { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 15px; border-bottom: 1px solid #edf0ee; }
+    .provider-row:last-child { border-bottom: 0; }
+    .provider-logo { width: 38px; height: 38px; border-radius: 10px; background: var(--soft); display: grid; place-items: center; font-weight: 900; }
+    .provider-name { font-weight: 750; }
+    .provider-desc { color: var(--muted); font-size: 11px; }
+    .model-select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .ownership-note { max-width: 850px; border: 1px dashed #9eb8b0; border-radius: 12px; padding: 14px; margin-top: 16px; background: #f5faf8; }
+    .ownership-note b { display: block; margin-bottom: 3px; }
+    .ownership-note p { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .modal-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(7,15,12,.48); display: none; place-items: center; padding: 20px; }
+    .modal-backdrop.open { display: grid; }
+    .modal { width: min(480px, 100%); background: white; border-radius: 14px; box-shadow: var(--shadow); padding: 20px; }
+    .modal h2 { margin: 0 0 5px; font-size: 18px; }
+    .modal p { color: var(--muted); margin: 0 0 15px; }
+    .role-options { display: grid; gap: 8px; }
+    .role-option { border: 1px solid var(--line); background: white; border-radius: 9px; padding: 11px; text-align: left; }
+    .role-option:hover { border-color: #79af9f; background: #f6fbf9; }
+    .modal-actions { display: flex; justify-content: flex-end; margin-top: 15px; }
+    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 80; background: #18231f; color: white; padding: 11px 14px; border-radius: 9px; box-shadow: var(--shadow); opacity: 0; transform: translateY(12px); pointer-events: none; transition: .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .prototype-note { background: #fff8d9; border: 1px solid #e6cf77; color: #6a5720; border-radius: 999px; padding: 4px 8px; font-size: 10px; white-space: nowrap; }
+
+    @media (max-width: 1050px) {
+      .overview-grid, .work-layout { grid-template-columns: 1fr; }
+      .right-column { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+      .team-grid { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      .app { grid-template-columns: 76px minmax(0,1fr); }
+      .sidebar { padding: 14px 9px; }
+      .brand { padding-left: 11px; }
+      .brand h1, .brand small, .workspace-switch, .nav-label, .nav-item .label, .nav-item .count, .add-agent .label { display: none; }
+      .nav-item { justify-content: center; padding: 11px; }
+      .add-agent { font-size: 0; }
+      .add-agent::after { content: "+"; font-size: 18px; }
+      .view { padding: 18px 14px; }
+      .topbar { padding: 0 13px; }
+      .model-pill { display: none; }
+      .return-card { align-items: flex-start; }
+      .return-stats { display: none; }
+      .right-column { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: 1fr; }
+      .status-lines { grid-template-columns: 1fr; }
+      .prototype-note { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">水</div>
+        <div><h1>WaterOS</h1><small>你的一人公司</small></div>
+      </div>
+      <div class="workspace-switch"><div><b>Di 的公司</b><span>4 个 Agent 在线</span></div><span>⌄</span></div>
+
+      <div class="nav-label">今天</div>
+      <button class="nav-item active" data-view="home"><span class="icon">⌂</span><span class="label">总览</span></button>
+      <button class="nav-item" data-view="attention"><span class="icon">!</span><span class="label">需要我</span><span class="count" id="attentionCount">2</span></button>
+      <button class="nav-item" data-view="work"><span class="icon">▣</span><span class="label">全部工作</span><span class="count gray">5</span></button>
+
+      <div class="nav-label">我的班子</div>
+      <button class="nav-item" data-view="team"><span class="agent-dot"></span><span class="label">CPO · 产品</span></button>
+      <button class="nav-item" data-view="team"><span class="agent-dot"></span><span class="label">CTO · 技术</span></button>
+      <button class="nav-item" data-view="team"><span class="agent-dot"></span><span class="label">Sidekick · 调研</span></button>
+      <button class="nav-item" data-view="team"><span class="agent-dot idle"></span><span class="label">秘书 · 生活</span></button>
+      <button class="add-agent" id="openAgentModal"><span class="label">＋ 雇一个新 Agent</span></button>
+
+      <div class="nav-label">公司设置</div>
+      <button class="nav-item" data-view="models"><span class="icon">◈</span><span class="label">模型与费用</span></button>
+      <button class="nav-item" data-view="memory"><span class="icon">◇</span><span class="label">公司记忆</span></button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title" id="topbarTitle">今天的公司</div>
+        <div class="prototype-note">LOW-FIDELITY MOCK</div>
+        <div class="topbar-spacer"></div>
+        <div class="status-pill"><i></i> 所有系统正常</div>
+        <div class="model-pill">本次默认：DeepSeek V4-Pro · ¥0.18/任务</div>
+        <div class="avatar">D</div>
+      </header>
+
+      <section class="view active" id="view-home">
+        <div class="overview-grid">
+          <div>
+            <h1 class="page-title">早上好，Di。</h1>
+            <p class="page-subtitle">公司没有停下来。下面只放你现在真正需要知道的事。</p>
+
+            <div class="return-card">
+              <div class="return-icon">↩</div>
+              <div>
+                <h2>你离开了 2 小时 16 分钟</h2>
+                <p>期间 3 件事继续推进，1 件完成，2 件需要你拍板。</p>
+              </div>
+              <div class="return-stats">
+                <div class="return-stat"><strong>1</strong><span>已完成</span></div>
+                <div class="return-stat"><strong>3</strong><span>进行中</span></div>
+                <div class="return-stat"><strong>2</strong><span>等你决定</span></div>
+              </div>
+            </div>
+
+            <div class="section" id="decisionSection">
+              <div class="section-head"><h2>需要你决定</h2><span class="hint">只有这些事情会打扰你</span></div>
+              <div class="decision-card card" id="decisionRestart">
+                <div class="eyebrow">CTO OFFICE · 权限请求</div>
+                <h3 class="decision-title">允许重启 Gateway，启用 Office Routing？</h3>
+                <p class="decision-desc">47 项测试已通过。重启预计中断 20–40 秒；失败时自动回滚到当前版本。</p>
+                <div class="decision-meta"><span>风险：低</span><span>影响：CPO ↔ CTO 自动传递工作</span><span>证据：可查看</span></div>
+                <div class="actions"><button class="btn primary" onclick="resolveDecision('decisionRestart','已批准 Gateway 重启')">批准重启</button><button class="btn">先看证据</button><button class="btn ghost" onclick="snoozeDecision('decisionRestart')">稍后</button></div>
+              </div>
+              <div class="decision-card card" id="decisionPrice">
+                <div class="eyebrow">CPO OFFICE · 产品决策</div>
+                <h3 class="decision-title">首批内测价格：¥99 还是 ¥199 / 月？</h3>
+                <p class="decision-desc">CPO 建议先用 ¥99 验证付费意愿，同时按量收取模型费用，避免推理成本倒挂。</p>
+                <div class="actions"><button class="btn primary" onclick="resolveDecision('decisionPrice','已选择 ¥99 / 月')">选 ¥99</button><button class="btn" onclick="resolveDecision('decisionPrice','已选择 ¥199 / 月')">选 ¥199</button><button class="btn">继续讨论</button></div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-head"><h2>正在推进</h2><span class="hint">普通进度不会制造未读</span></div>
+              <div class="card">
+                <div class="work-row" onclick="openWork('routing')">
+                  <div class="work-icon">⇄</div>
+                  <div><div class="work-title">Agent Office Routing</div><div class="work-meta">CTO · 8 分钟前更新 · WO-2026-041</div></div>
+                  <div class="progress-wrap"><div class="progress-label">实现中 · 72%</div><div class="progress"><i style="width:72%"></i></div></div>
+                </div>
+                <div class="work-row" onclick="openWork('market')">
+                  <div class="work-icon">研</div>
+                  <div><div class="work-title">中国一人公司“卖铲子”市场</div><div class="work-meta">Sidekick · 12 分钟前更新 · WO-2026-045</div></div>
+                  <div class="progress-wrap"><div class="progress-label">调研中 · 58%</div><div class="progress"><i style="width:58%"></i></div></div>
+                </div>
+                <div class="work-row" onclick="openWork('mock')">
+                  <div class="work-icon">稿</div>
+                  <div><div class="work-title">WaterOS 中文低保真 Mock</div><div class="work-meta">CPO · 刚刚更新 · WO-2026-047</div></div>
+                  <div><span class="status-tag working">● 正在做</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-head"><h2>刚刚完成</h2><span class="hint">已写入公司历史</span></div>
+              <div class="card">
+                <div class="work-row" onclick="openWork('roadmap')">
+                  <div class="work-icon">✓</div>
+                  <div><div class="work-title">WaterOS 30 天 Product Roadmap</div><div class="work-meta">CPO · 24 分钟前 · 217 行 · 已存档</div></div>
+                  <div><span class="status-tag done">已完成</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="right-column">
+            <div class="side-card">
+              <h3>班子现在在做什么</h3>
+              <div class="side-body">
+                <div class="pulse-row"><div class="pulse-avatar">CP</div><div class="pulse-info"><b>CPO</b><span>产品 mock + 路线收敛</span></div><span class="agent-dot"></span></div>
+                <div class="pulse-row"><div class="pulse-avatar">CT</div><div class="pulse-info"><b>CTO</b><span>Office Routing + workforce ledger</span></div><span class="agent-dot"></span></div>
+                <div class="pulse-row"><div class="pulse-avatar">S</div><div class="pulse-info"><b>Sidekick</b><span>中美市场与竞品研究</span></div><span class="agent-dot"></span></div>
+                <div class="pulse-row"><div class="pulse-avatar">秘</div><div class="pulse-info"><b>秘书</b><span>等待下一项生活任务</span></div><span class="agent-dot idle"></span></div>
+              </div>
+            </div>
+            <div class="side-card">
+              <h3>今天的模型费用</h3>
+              <div class="side-body">
+                <div class="cost-big">¥ 7.84</div>
+                <div class="cost-note">共 19 次执行 · 比全部使用最高档模型节省约 68%</div>
+                <button class="btn" style="width:100%;margin-top:12px" data-view-jump="models">查看和切换模型</button>
+              </div>
+            </div>
+            <div class="side-card">
+              <h3>公司今天记住了什么</h3>
+              <div class="side-body">
+                <div class="memory-item"><b>用户偏好：产品讨论改用语音</b><span>CPO 记忆 · 35 分钟前</span></div>
+                <div class="memory-item"><b>产品方向：开源、模型自由、Web-first</b><span>公司战略 · 24 分钟前</span></div>
+                <div class="memory-item"><b>注意力规则：只有决策才制造未读</b><span>CTO 契约 · 19 分钟前</span></div>
+                <button class="btn" style="width:100%;margin-top:10px" data-view-jump="memory">打开公司记忆</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-attention">
+        <h1 class="page-title">需要我</h1>
+        <p class="page-subtitle">这里只放必须由你做决定、授权或解阻的事情。Agent 的普通进度不会出现在这里。</p>
+        <div style="max-width:860px" id="attentionClone"></div>
+      </section>
+
+      <section class="view" id="view-work">
+        <div class="work-layout">
+          <div>
+            <div class="work-header"><button class="back-link" onclick="showView('home')">← 回到总览</button><h1 id="workTitle">Agent Office Routing</h1><p id="workDesc">让 CPO 与 CTO 在彼此独立的前提下，可靠地传递结构化工作。</p></div>
+            <div class="status-card">
+              <div class="status-card-head"><b>唯一状态卡 · 普通进度只更新这里</b><span>刚刚更新</span></div>
+              <div class="status-lines">
+                <div class="status-line"><span>当前状态</span><b id="workStatus">实现中 · 72%</b></div>
+                <div class="status-line"><span>现在由谁处理</span><b id="workOwner">CTO Office</b></div>
+                <div class="status-line"><span>下一检查点</span><b id="workNext">双向 smoke test</b></div>
+              </div>
+            </div>
+            <div id="messageThread">
+              <div class="message"><div class="message-avatar">D</div><div><div class="message-head"><b>Di</b><span>今天 14:02</span></div><p>不要让我继续当 CPO 和 CTO 之间的跑腿。把消息来回传递这件事做通。</p></div></div>
+              <div class="message"><div class="message-avatar">CT</div><div><div class="message-head"><b>CTO</b><span>今天 14:06</span></div><p>收到。采用 durable Work Object inbox，而不是让两个 Office 共享 context。目前 contract 和 validator 已通过 47 项测试。</p><div class="artifact">附件：Agent Office Routing · Contract + Test Evidence</div></div></div>
+              <div class="message"><div class="message-avatar">CP</div><div><div class="message-head"><b>CPO</b><span>今天 14:18</span></div><p>产品边界确认：Office 必须保持独立；只传最小 brief、artifact reference 和结果。部署前需要 Di 明确批准重启。</p></div></div>
+            </div>
+            <div class="composer"><input id="composerInput" placeholder="给这个 Work Object 留言……" /><button class="btn primary" onclick="sendMockMessage()">发送</button></div>
+          </div>
+          <aside>
+            <div class="side-card"><h3>这个工作欠什么</h3><div class="side-body"><div class="fact-row"><span>CTO 欠 Di</span><b>可回滚的双向路由</b></div><div class="fact-row"><span>CPO 欠 CTO</span><b>产品边界验收</b></div><div class="fact-row"><span>Di 需要做</span><b>批准 Gateway restart</b></div></div></div>
+            <div class="side-card"><h3>执行模型</h3><div class="side-body"><div class="fact-row"><span>当前模型</span><b>Claude Opus 5 · high</b></div><div class="fact-row"><span>本任务已花费</span><b>¥ 2.17</b></div><button class="btn" style="width:100%;margin-top:10px" onclick="showView('models')">切换未来执行模型</button></div></div>
+            <div class="side-card"><h3>相关记忆</h3><div class="side-body"><div class="fact-row"><span>组织原则</span><b>Office 独立，不共享完整对话</b></div><div class="fact-row"><span>注意力原则</span><b>只有人类决策制造 unread</b></div></div></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-team">
+        <h1 class="page-title">我的班子</h1>
+        <p class="page-subtitle">每个 Agent 有清楚的职责、权限、当前工作和长期记忆。模型只是它当前使用的引擎。</p>
+        <div class="team-grid">
+          <div class="agent-card card"><div class="agent-card-top"><div class="agent-card-avatar">CP</div><div><h3>CPO</h3><div class="role">产品负责人</div></div><span class="agent-dot" style="margin-left:auto"></span></div><p>负责产品方向、范围、优先级，以及明确什么不做。</p><div class="agent-kv"><span>现在在做</span><b>中文版 mock</b></div><div class="agent-kv"><span>模型</span><b>GPT-5.6 Sol</b></div><div class="agent-kv"><span>记忆</span><b>刚刚更新</b></div></div>
+          <div class="agent-card card"><div class="agent-card-top"><div class="agent-card-avatar">CT</div><div><h3>CTO</h3><div class="role">技术负责人</div></div><span class="agent-dot" style="margin-left:auto"></span></div><p>负责架构、工程节奏、实施质量和可回滚部署。</p><div class="agent-kv"><span>现在在做</span><b>Office Routing</b></div><div class="agent-kv"><span>模型</span><b>Claude Opus 5</b></div><div class="agent-kv"><span>记忆</span><b>19 分钟前</b></div></div>
+          <div class="agent-card card"><div class="agent-card-top"><div class="agent-card-avatar">S</div><div><h3>Sidekick</h3><div class="role">调研与扩展</div></div><span class="agent-dot" style="margin-left:auto"></span></div><p>负责市场扫描、资料整理和低成本信息扩展。</p><div class="agent-kv"><span>现在在做</span><b>中美竞品研究</b></div><div class="agent-kv"><span>模型</span><b>DeepSeek V4-Pro</b></div><div class="agent-kv"><span>记忆</span><b>12 分钟前</b></div></div>
+          <div class="agent-card card"><div class="agent-card-top"><div class="agent-card-avatar">秘</div><div><h3>秘书</h3><div class="role">生活与行政</div></div><span class="agent-dot idle" style="margin-left:auto"></span></div><p>负责家庭行程、提醒、资料归档和生活行政。</p><div class="agent-kv"><span>现在在做</span><b>空闲</b></div><div class="agent-kv"><span>模型</span><b>Qwen 3</b></div><div class="agent-kv"><span>记忆</span><b>昨天</b></div></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-models">
+        <h1 class="page-title">模型与费用</h1>
+        <p class="page-subtitle">你的班子不属于任何一家模型公司。随时换模型，工作和记忆都不会丢。</p>
+        <div class="provider-list card">
+          <div class="provider-row"><div class="provider-logo">DS</div><div><div class="provider-name">DeepSeek</div><div class="provider-desc">默认处理调研、整理和日常工作 · 今日 ¥3.42</div></div><select class="model-select" onchange="modelChanged(this)"><option>V4-Pro · 默认</option><option>V4-Lite · 更省</option></select></div>
+          <div class="provider-row"><div class="provider-logo">Q</div><div><div class="provider-name">通义千问</div><div class="provider-desc">中国可用 · 生活秘书与中文任务 · 今日 ¥0.91</div></div><select class="model-select" onchange="modelChanged(this)"><option>Qwen 3 · 已连接</option><option>Qwen 3 Max</option></select></div>
+          <div class="provider-row"><div class="provider-logo">A</div><div><div class="provider-name">Anthropic</div><div class="provider-desc">高难度架构与长文理解 · 今日 ¥2.17</div></div><select class="model-select" onchange="modelChanged(this)"><option>Opus 5 · high</option><option>Sonnet 5 · medium</option></select></div>
+          <div class="provider-row"><div class="provider-logo">O</div><div><div class="provider-name">OpenAI</div><div class="provider-desc">产品推理与代码执行 · 今日 ¥1.34</div></div><select class="model-select" onchange="modelChanged(this)"><option>GPT-5.6 Sol</option><option>GPT-5.5</option></select></div>
+        </div>
+        <div class="ownership-note"><b>模型换了，公司不会失忆。</b><p>Work Object、Agent 身份、承诺、通信历史和公司记忆都由 WaterOS 保存。模型只是可以更换的执行引擎。</p></div>
+      </section>
+
+      <section class="view" id="view-memory">
+        <h1 class="page-title">公司记忆</h1>
+        <p class="page-subtitle">这不是隐藏在聊天记录里的“黑箱记忆”，而是你可以打开、修改、导出和版本回退的公司知识。</p>
+        <div class="card" style="max-width:900px;padding:18px">
+          <div class="eyebrow">公司战略 · 今天更新</div><h2 style="margin:0 0 7px;font-size:18px">WaterOS 产品方向</h2><p style="margin:0;color:var(--muted)">开源、模型自由、Web-first 的一人公司 Agent workspace。先做 Agent 的 Slack，App Store 从 workspace 自然长出来。</p>
+          <hr style="border:0;border-top:1px solid var(--line);margin:17px 0">
+          <div class="eyebrow">工作方式 · 今天更新</div><h2 style="margin:0 0 7px;font-size:18px">注意力规则</h2><p style="margin:0;color:var(--muted)">普通进度更新同一张状态卡。只有 decision、permission、blocked_requires_human 才制造未读。</p>
+          <hr style="border:0;border-top:1px solid var(--line);margin:17px 0">
+          <div class="eyebrow">用户偏好 · 今天更新</div><h2 style="margin:0 0 7px;font-size:18px">与 Di 沟通</h2><p style="margin:0;color:var(--muted)">产品探索优先使用简短语音；组织委派必须在可见 thread 中发生，方便检查、打断和审计。</p>
+          <div class="actions"><button class="btn">查看版本历史</button><button class="btn">导出全部记忆</button><button class="btn primary" onclick="showToast('已进入编辑模式（mock）')">编辑这页</button></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="agentModal">
+    <div class="modal"><h2>雇一个新 Agent</h2><p>先从一个清楚的职责开始。以后随时可以换模型，不会丢掉它的工作历史。</p><div class="role-options"><button class="role-option" onclick="hireAgent('销售与客户')"><b>销售与客户</b><br><span style="color:var(--muted)">跟进线索、准备回复、整理客户历史</span></button><button class="role-option" onclick="hireAgent('内容与营销')"><b>内容与营销</b><br><span style="color:var(--muted)">研究选题、起草内容、跟踪发布计划</span></button><button class="role-option" onclick="hireAgent('财务与行政')"><b>财务与行政</b><br><span style="color:var(--muted)">票据、提醒、预算和资料归档</span></button></div><div class="modal-actions"><button class="btn" onclick="closeAgentModal()">取消</button></div></div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const titles = {home:'今天的公司', attention:'需要我', work:'Work Object', team:'我的班子', models:'模型与费用', memory:'公司记忆'};
+    const works = {
+      routing:{title:'Agent Office Routing',desc:'让 CPO 与 CTO 在彼此独立的前提下，可靠地传递结构化工作。',status:'实现中 · 72%',owner:'CTO Office',next:'双向 smoke test'},
+      market:{title:'中国一人公司“卖铲子”市场',desc:'核实市场规模、竞品、真实定价，以及模型解绑是否是可信需求。',status:'调研中 · 58%',owner:'Sidekick',next:'竞品定价交叉验证'},
+      mock:{title:'WaterOS 中文低保真 Mock',desc:'把今天在 Chrome + Discord 里验证的体验，压缩成一个一眼看懂的网页产品。',status:'正在制作',owner:'CPO Office',next:'Di 视觉验收'},
+      roadmap:{title:'WaterOS 30 天 Product Roadmap',desc:'定义用户、V1 闭环、四个界面、OpenCore 最小范围和 30 天验收门槛。',status:'已完成',owner:'CPO Office',next:'CTO reconciliation'}
+    };
+
+    function showView(name){
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      document.getElementById('view-'+name).classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===name));
+      document.getElementById('topbarTitle').textContent=titles[name]||'WaterOS';
+      window.scrollTo({top:0,behavior:'smooth'});
+      if(name==='attention') syncAttention();
+    }
+    document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>showView(el.dataset.view)));
+    document.querySelectorAll('[data-view-jump]').forEach(el=>el.addEventListener('click',()=>showView(el.dataset.viewJump)));
+
+    function openWork(key){
+      const w=works[key]||works.routing;
+      document.getElementById('workTitle').textContent=w.title;
+      document.getElementById('workDesc').textContent=w.desc;
+      document.getElementById('workStatus').textContent=w.status;
+      document.getElementById('workOwner').textContent=w.owner;
+      document.getElementById('workNext').textContent=w.next;
+      showView('work');
+    }
+    function showToast(text){
+      const t=document.getElementById('toast'); t.textContent=text; t.classList.add('show');
+      clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+    }
+    function resolveDecision(id,text){
+      const el=document.getElementById(id); if(el.classList.contains('resolved')) return;
+      el.classList.add('resolved'); el.querySelector('.actions').innerHTML='<span class="status-tag done">✓ '+text+'</span>';
+      updateAttentionCount(); showToast(text+'，已写入 Work Object');
+    }
+    function snoozeDecision(id){ document.getElementById(id).style.display='none'; updateAttentionCount(); showToast('已推迟 2 小时'); }
+    function updateAttentionCount(){
+      const open=[...document.querySelectorAll('#decisionSection .decision-card')].filter(x=>!x.classList.contains('resolved')&&x.style.display!=='none').length;
+      document.getElementById('attentionCount').textContent=open;
+      syncAttention();
+    }
+    function syncAttention(){
+      const target=document.getElementById('attentionClone'); if(!target) return;
+      const items=[...document.querySelectorAll('#decisionSection .decision-card')].filter(x=>!x.classList.contains('resolved')&&x.style.display!=='none');
+      target.innerHTML=items.length?items.map(x=>'<div class="decision-card card">'+x.innerHTML.replace(/onclick="[^"]*"/g,'')+'</div>').join(''):'<div class="card" style="padding:28px;text-align:center"><h2 style="margin:0 0 6px">现在没有事情需要你</h2><p style="margin:0;color:var(--muted)">你的班子会继续工作。需要决定时再叫你。</p></div>';
+    }
+    function sendMockMessage(){
+      const input=document.getElementById('composerInput'); const value=input.value.trim(); if(!value)return;
+      const box=document.createElement('div'); box.className='message'; box.innerHTML='<div class="message-avatar">D</div><div><div class="message-head"><b>Di</b><span>刚刚</span></div><p></p></div>'; box.querySelector('p').textContent=value;
+      document.getElementById('messageThread').appendChild(box); input.value=''; showToast('已发送，并记录进这个 Work Object');
+    }
+    document.getElementById('composerInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMockMessage()});
+    document.getElementById('openAgentModal').addEventListener('click',()=>document.getElementById('agentModal').classList.add('open'));
+    function closeAgentModal(){document.getElementById('agentModal').classList.remove('open')}
+    function hireAgent(role){closeAgentModal();showToast('已选择“'+role+'”模板，下一步配置模型（mock）')}
+    function modelChanged(select){showToast('未来任务将使用 '+select.value+'，历史和记忆保持不变')}
+    document.getElementById('agentModal').addEventListener('click',e=>{if(e.target.id==='agentModal')closeAgentModal()});
+    syncAttention();
+  </script>
+</body>
+</html>
