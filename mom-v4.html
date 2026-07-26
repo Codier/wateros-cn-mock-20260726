@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fffaf4" />
+  <title>小水管家 · 妈妈版 V4</title>
+  <style>
+    :root{
+      --ink:#2d2925;--muted:#7b746d;--paper:#fffdf9;--cream:#fff8ee;
+      --line:#eadfd5;--orange:#e96f3b;--orange-dark:#bd4e21;
+      --green:#2f866e;--green-soft:#ebf6f1;--blue:#476fae;--blue-soft:#eef4ff;
+      --shadow:0 12px 34px rgba(65,48,35,.10)
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:#ebe7e2;color:var(--ink)}
+    body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;font-size:19px;line-height:1.45}
+    button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .phone{width:100%;max-width:430px;min-height:100vh;margin:0 auto;background:var(--paper);display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 0 50px rgba(38,30,24,.15)}
+    .safe{height:max(12px,env(safe-area-inset-top));background:var(--cream)}
+    .top{height:64px;display:flex;align-items:center;padding:8px 18px;background:var(--cream);border-bottom:1px solid var(--line);gap:10px;transition:.2s}
+    .top.hidden{opacity:0;visibility:hidden;pointer-events:none;border-bottom-color:transparent;background:var(--paper)}
+    .mini-face{width:40px;height:40px;border-radius:14px;background:#f6d7c3;color:var(--orange-dark);display:grid;place-items:center;font-weight:900}
+    .top-copy{flex:1;min-width:0}
+    .top-copy b{display:block;font-size:16px;line-height:1.1}
+    .top-copy span{display:block;font-size:12px;color:var(--green);margin-top:4px}
+    .home-dot{width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:white;font-size:18px;color:var(--muted)}
+
+    .stage{flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 24px calc(28px + env(safe-area-inset-bottom));min-height:620px;animation:fade .22s ease}
+    @keyframes fade{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
+    .stage.top-align{justify-content:flex-start;padding-top:55px}
+    .big-face{width:112px;height:112px;border-radius:38px;background:linear-gradient(145deg,#f8ddcd,#f3c6aa);color:var(--orange-dark);display:grid;place-items:center;font-size:47px;font-weight:900;margin:0 auto 30px;box-shadow:0 8px 24px rgba(190,92,47,.14)}
+    .eyebrow{text-align:center;color:var(--orange-dark);font-size:14px;font-weight:850;margin-bottom:11px}
+    h1{font-size:32px;line-height:1.28;letter-spacing:-.6px;text-align:center;margin:0 0 14px}
+    .lead{text-align:center;color:var(--muted);font-size:18px;line-height:1.6;margin:0 auto 28px;max-width:330px}
+    .quiet{font-size:14px;color:var(--muted);text-align:center;margin:16px 0 0}
+    .primary{width:100%;min-height:62px;border:0;border-radius:18px;background:var(--orange);color:white;font-weight:850;font-size:20px;box-shadow:0 6px 0 #c95729;margin-top:12px;padding:14px 18px}
+    .primary:active{transform:translateY(3px);box-shadow:0 3px 0 #c95729}
+    .secondary{width:100%;min-height:58px;border:1px solid var(--line);border-radius:18px;background:white;color:var(--ink);font-weight:800;font-size:18px;margin-top:12px;padding:13px 18px}
+    .text-link{display:block;margin:22px auto 0;border:0;background:transparent;color:var(--muted);font-size:15px;text-decoration:underline;text-underline-offset:4px;padding:8px}
+
+    .one-card{background:white;border:1px solid var(--line);border-radius:26px;padding:27px 21px;box-shadow:var(--shadow);text-align:center}
+    .card-icon{width:72px;height:72px;border-radius:25px;background:#fff2e7;display:grid;place-items:center;font-size:34px;margin:0 auto 20px}
+    .one-card h1{font-size:28px;margin-bottom:11px}
+    .one-card p{font-size:17px;color:var(--muted);margin:0 0 20px;line-height:1.55}
+    .done-mark{width:82px;height:82px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center;font-size:44px;font-weight:900;margin:0 auto 24px}
+
+    .voice-area{text-align:center;margin-top:26px}
+    .voice{width:104px;height:104px;border-radius:50%;border:0;background:var(--orange);box-shadow:0 8px 0 #c95729,0 18px 32px rgba(193,83,38,.20);color:white;display:grid;place-items:center;margin:0 auto;position:relative}
+    .voice:active{transform:translateY(5px);box-shadow:0 3px 0 #c95729}
+    .mic{width:31px;height:42px;border:4px solid white;border-radius:18px;position:relative}
+    .mic:before{content:"";position:absolute;width:48px;height:28px;border:4px solid white;border-top:0;border-radius:0 0 24px 24px;left:50%;top:22px;transform:translateX(-50%)}
+    .mic:after{content:"";position:absolute;width:4px;height:13px;background:white;border-radius:3px;left:50%;top:47px;transform:translateX(-50%)}
+    .voice-area b{display:block;font-size:20px;margin-top:20px}
+    .voice-area span{display:block;color:var(--muted);font-size:14px;margin-top:4px}
+
+    .listening{width:150px;height:150px;border-radius:50%;background:#fff0e5;margin:0 auto 32px;display:grid;place-items:center;position:relative}
+    .listening:before,.listening:after{content:"";position:absolute;border:2px solid #f4b693;border-radius:50%;animation:pulse 1.5s infinite}
+    .listening:before{inset:-12px}.listening:after{inset:-25px;animation-delay:.35s}
+    @keyframes pulse{0%{opacity:.15;transform:scale(.9)}50%{opacity:.7}100%{opacity:0;transform:scale(1.1)}}
+    .listening .mic{border-color:var(--orange)}
+    .listening .mic:before{border-color:var(--orange)}
+    .listening .mic:after{background:var(--orange)}
+
+    .example{border:2px solid #f0c7ad;background:#fff9f4;border-radius:24px;padding:24px 20px;text-align:center;margin:20px 0}
+    .example small{display:block;color:var(--muted);font-size:13px;margin-bottom:10px}
+    .example b{font-size:24px;line-height:1.45;display:block}
+    .dots{display:flex;justify-content:center;gap:6px;margin:18px 0}
+    .dots i{width:7px;height:7px;border-radius:50%;background:#ded5cd}
+    .dots i.on{width:20px;border-radius:5px;background:var(--orange)}
+
+    .summary{background:var(--green-soft);border:1px solid #cde8dc;border-radius:24px;padding:24px;text-align:center;margin-bottom:20px}
+    .summary .symbol{font-size:44px;margin-bottom:10px}
+    .summary h1{font-size:29px;margin-bottom:9px}
+    .summary p{font-size:17px;color:#587168;margin:0}
+    .tiny-rule{display:flex;align-items:flex-start;gap:10px;background:#f7f4f0;border-radius:16px;padding:13px 14px;margin-top:17px;text-align:left}
+    .tiny-rule span{font-size:13px;color:var(--muted)}
+    .masked{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f3f1ef;border-radius:14px;padding:16px;text-align:center;letter-spacing:2px;font-size:18px;margin:18px 0}
+
+    .focus-label{font-size:14px;font-weight:850;color:var(--orange-dark);margin:0 0 9px 3px}
+    .focus-card{background:white;border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:var(--shadow)}
+    .focus-top{display:grid;grid-template-columns:52px 1fr;gap:13px;align-items:center}
+    .focus-icon{width:52px;height:52px;border-radius:17px;background:#fff0e5;display:grid;place-items:center;font-size:27px}
+    .focus-copy h1{text-align:left;font-size:24px;line-height:1.25;margin:0 0 5px}
+    .focus-copy p{text-align:left;font-size:15px;line-height:1.45;color:var(--muted);margin:0}
+    .focus-detail{background:#faf7f3;border-radius:14px;padding:12px 13px;margin-top:14px;font-size:15px;text-align:center}
+    .focus-actions{display:grid;grid-template-columns:1.35fr 1fr;gap:9px;margin-top:12px}
+    .focus-actions button{min-height:52px;border-radius:15px;font-weight:850;font-size:17px;padding:10px}
+    .focus-yes{border:0;background:var(--orange);color:white;box-shadow:0 4px 0 #c95729}
+    .focus-no{border:1px solid var(--line);background:white;color:var(--ink)}
+    .more-label{font-size:15px;font-weight:850;margin:23px 0 10px 3px}
+    .shortcut-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .shortcut{min-height:70px;border:1px solid var(--line);border-radius:17px;background:white;display:flex;align-items:center;gap:10px;padding:12px;text-align:left;font-size:16px;font-weight:800}
+    .shortcut i{font-style:normal;width:34px;height:34px;border-radius:11px;background:#f6f2ee;display:grid;place-items:center;font-size:19px;flex:none}
+    .voice-strip{width:100%;min-height:58px;border:0;border-radius:17px;background:#fff0e5;color:var(--orange-dark);display:flex;align-items:center;justify-content:center;gap:9px;font-size:18px;font-weight:850;margin-top:12px}
+
+    .sheet-bg{position:fixed;inset:0;background:rgba(30,23,18,.45);display:none;align-items:flex-end;justify-content:center;z-index:80}
+    .sheet-bg.open{display:flex}
+    .sheet{width:100%;max-width:430px;background:var(--paper);border-radius:26px 26px 0 0;padding:12px 22px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -18px 50px rgba(45,33,25,.2);animation:up .2s ease}
+    @keyframes up{from{transform:translateY(35px);opacity:.4}to{transform:none;opacity:1}}
+    .handle{width:42px;height:5px;background:#ddd4cd;border-radius:5px;margin:0 auto 22px}
+    .sheet h2{font-size:25px;text-align:center;margin:0 0 9px}
+    .sheet p{font-size:16px;color:var(--muted);text-align:center;margin:0 0 19px}
+    .face-id{width:78px;height:78px;border:4px dashed #222;border-radius:22px;display:grid;place-items:center;margin:0 auto 20px;font-size:34px}
+    .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,14px);z-index:100;background:#2c2926;color:white;border-radius:14px;padding:12px 15px;max-width:calc(100% - 40px);font-size:14px;text-align:center;opacity:0;pointer-events:none;transition:.2s}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+
+    @media(min-width:431px){.phone{min-height:860px;margin:24px auto;border-radius:30px}.sheet-bg{align-items:center}.sheet{border-radius:26px}.safe{height:10px}}
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="safe"></div>
+    <header class="top hidden" id="top"><div class="mini-face">水</div><div class="top-copy"><b>小水管家</b><span>我在，您慢慢来</span></div><button class="home-dot" onclick="render('rest')" aria-label="回到管家首页">⌂</button></header>
+    <main class="stage" id="stage"></main>
+  </div>
+  <div class="sheet-bg" id="sheetBg" onclick="backdrop(event)"><div class="sheet"><div class="handle"></div><div id="sheetBody"></div></div></div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const intents=[
+      {key:'shop',say:'“帮我买两箱矿泉水。”'},
+      {key:'money',say:'“今天投资有要紧事吗？”'},
+      {key:'travel',say:'“去泰国要带什么？”'},
+      {key:'vault',say:'“帮我找一下护照信息。”'},
+      {key:'chat',say:'“我想跟你聊聊天。”'}
+    ];
+    let exampleIndex=0;
+    const stage=document.getElementById('stage');
+    const topbar=document.getElementById('top');
+
+    function shortcutsHtml(){
+      return `<div class="more-label">您也可以</div><div class="shortcut-grid"><button class="shortcut" onclick="render('first')"><i>🍚</i>问晚饭</button><button class="shortcut" onclick="render('travel')"><i>🇹🇭</i>泰国出行</button><button class="shortcut" onclick="render('money')"><i>💰</i>看看投资</button><button class="shortcut" onclick="render('vault')"><i>🔐</i>找重要资料</button></div><button class="voice-strip" onclick="render('listen')">🎙️ 直接跟我说</button>`;
+    }
+    function balancedHtml(){
+      return `<div class="focus-label">今天需要您确认 1 件事</div><div class="focus-card"><div class="focus-top"><div class="focus-icon">💧</div><div class="focus-copy"><h1>矿泉水可能快喝完了</h1><p>按您平时的用量，我先替您看了一下。</p></div></div><div class="focus-detail"><b>常买的两箱 · ¥57.80</b><br>明天下午送到家里</div><div class="focus-actions"><button class="focus-yes" onclick="oneTapOrder()">好，买吧</button><button class="focus-no" onclick="render('rest')">不用</button></div></div>${shortcutsHtml()}`;
+    }
+    function restHtml(){
+      return `<div class="summary"><div class="symbol">✓</div><h1>现在没有要紧事。</h1><p>有需要您处理的事，我会放在最上面。</p></div>${shortcutsHtml()}`;
+    }
+
+    function render(name){
+      closeSheet();
+      stage.className='stage';
+      topbar.classList.toggle('hidden',name==='welcome');
+      if(name!=='welcome')stage.classList.add('top-align');
+      const scenes={
+        welcome:`<div class="big-face">水</div><div class="eyebrow">小水管家</div><h1>您好，我已经<br>替您准备好了。</h1><p class="lead">不用设置，也不用学。<br>我会先把可能要办的事告诉您。</p><button class="primary" onclick="render('balanced')">看看今天的事</button><button class="text-link" onclick="readAloud('您好，我是小水管家。我已经替您准备好了。')">🔊 读给我听</button>`,
+        balanced:balancedHtml(),
+        first:`<div class="one-card"><div class="card-icon">🍚</div><div class="eyebrow">我先替您想到一件事</div><h1>今晚要不要等<br>孩子们回来吃饭？</h1><p>我知道您经常需要问这件事。<br>我可以现在替您问。</p><button class="primary" onclick="render('asked')">好，帮我问</button><button class="secondary" onclick="render('rest')">今天不用</button></div><button class="text-link" onclick="render('listen')">我想说别的事</button>`,
+        asked:`<div class="done-mark">✓</div><h1>已经替您问了。</h1><p class="lead">有回复我会告诉您。<br>现在不用做什么，也不用一直看手机。</p><button class="primary" onclick="render('rest')">好，我知道了</button>`,
+        rest:restHtml(),
+        listen:`<div class="listening"><span class="mic"></span></div><h1>我在听。</h1><p class="lead">您慢慢说，不着急。<br>我会把该确认的内容放在同一张卡上。</p><button class="primary" onclick="render('shop')">演示：我说完了</button><button class="secondary" onclick="render('rest')">先不说了</button>`,
+        heard:`<div class="one-card"><div class="card-icon">🛍️</div><div class="eyebrow">我听到的是</div><h1>您想买两箱<br>常喝的矿泉水。</h1><p>我理解得对吗？</p><button class="primary" onclick="render('shop')">对</button><button class="secondary" onclick="render('listen')">不对，我再说一遍</button></div>`,
+        example:exampleHtml(),
+        shop:`<div class="one-card"><div class="card-icon">💧</div><div class="eyebrow">按您平时的用量</div><h1>矿泉水可能<br>快喝完了。</h1><p><b style="color:var(--ink)">常买的两箱 · ¥57.80</b><br>明天下午送到家里</p><button class="primary" onclick="oneTapOrder()">好，买吧 · ¥57.80</button><button class="secondary" onclick="render('rest')">不用，家里还有</button></div><div class="tiny-rule"><b>⌁</b><span>点“买吧”后，iPhone 会直接用 Face ID 确认，不再打开新的确认页面。</span></div>`,
+        money:`<div class="summary"><div class="symbol">✓</div><h1>今天不用操作。</h1><p>市场有些波动，但没有触发家人帮您设定的提醒。</p></div><button class="primary" onclick="readAloud('今天没有需要处理的投资。任何买卖都会先请您确认。')">听我解释</button><button class="secondary" onclick="render('rest')">知道了</button><div class="tiny-rule"><b>🛡️</b><span>不会自动替您买卖。任何交易都会先请您确认。</span></div>`,
+        travel:`<div class="one-card"><div class="card-icon">🇹🇭</div><div class="eyebrow">我记得您的行程</div><h1>去泰国还有<br>12 天。</h1><p>护照、常用药和充电器已经放进清单。您不需要自己记。</p><button class="primary" onclick="showToast('已联系熟悉中文的泰国地陪（演示）')">帮我联系地陪</button><button class="secondary" onclick="render('rest')">以后再说</button></div>`,
+        vault:`<div class="one-card"><div class="card-icon">🔐</div><div class="eyebrow">重要资料不会放进聊天</div><h1>您要找的是<br>护照信息吗？</h1><p>只有您的 Face ID 能打开。<br>管家也看不到真实号码。</p><button class="primary" onclick="vaultSheet()">是，用 Face ID 看</button><button class="secondary" onclick="render('listen')">不是这份资料</button></div>`,
+        chat:`<div class="big-face" style="width:88px;height:88px;border-radius:30px;font-size:38px">水</div><h1>我在这儿。</h1><p class="lead">您想说什么都可以。<br>我会记住有用的事，也会替您保守隐私。</p><button class="primary" onclick="render('listen')">按一下，慢慢说</button><button class="secondary" onclick="render('rest')">今天先不聊</button>`
+      };
+      stage.innerHTML=scenes[name]||scenes.rest;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function exampleHtml(){const x=intents[exampleIndex];return `<div class="eyebrow">您可以这样说</div><h1>不用找菜单。<br>直接说一句话。</h1><div class="example"><small>例如</small><b>${x.say}</b></div><div class="dots">${intents.map((_,i)=>`<i class="${i===exampleIndex?'on':''}"></i>`).join('')}</div><button class="primary" onclick="render('${x.key}')">就试试这件事</button><button class="secondary" onclick="nextExample()">换一个例子</button><button class="text-link" onclick="render('rest')">回去</button>`}
+    function nextExample(){exampleIndex=(exampleIndex+1)%intents.length;render('example')}
+    function openSheet(html){document.getElementById('sheetBody').innerHTML=html;document.getElementById('sheetBg').classList.add('open')}
+    function closeSheet(){document.getElementById('sheetBg').classList.remove('open')}
+    function backdrop(e){if(e.target.id==='sheetBg')closeSheet()}
+    function oneTapOrder(){
+      showToast('⌁ 正在用 Face ID 确认……');
+      setTimeout(()=>{
+        stage.innerHTML=`<div class="done-mark">✓</div><h1>买好了。</h1><p class="lead">两箱矿泉水，¥57.80。<br>明天下午送到家里。</p><button class="primary" onclick="render('rest')">好</button>`;
+      },850);
+    }
+    function orderSheet(){openSheet(`<h2>最后确认一次</h2><p>两箱常买的矿泉水<br>明天下午送到家里 · ¥57.80</p><div class="face-id">⌁</div><button class="primary" onclick="finishOrder()">模拟 Face ID 确认</button><button class="secondary" onclick="closeSheet()">先不买</button>`)}
+    function finishOrder(){closeSheet();stage.innerHTML=`<div class="done-mark">✓</div><h1>买好了。</h1><p class="lead">明天下午送到。<br>到门口时我会提醒您。</p><button class="primary" onclick="render('rest')">好</button>`}
+    function vaultSheet(){openSheet(`<div class="face-id">⌁</div><h2>用 Face ID 查看</h2><p>正式产品只会短暂显示给您本人。<br>演示里没有保存真实号码。</p><button class="primary" onclick="revealVault()">模拟 Face ID 成功</button><button class="secondary" onclick="closeSheet()">取消</button>`)}
+    function revealVault(){document.getElementById('sheetBody').innerHTML=`<h2>护照信息</h2><p>安全演示仍然保持遮罩。<br>不会写进聊天或 Agent 记忆。</p><div class="masked">E••••••• · 尾号 4821</div><button class="primary" onclick="closeSheet();render('rest')">看完了，关掉</button>`}
+    function readAloud(text){showToast('🔊 '+text)}
+    function showToast(text){const t=document.getElementById('toast');t.textContent=text;t.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),2800)}
+    render('welcome');
+  </script>
+</body>
+</html>
